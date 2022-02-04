@@ -3,15 +3,15 @@ title: "Crear un  parámetro compartido con la API de Revit."
 publishedAt: "2021-12-29"
 summary: "Un tutorial completo de como crear un parametro compartido con la API de Revit."
 tags:
-  - '💻 Revit API'
-  - 'Programacion'
+  - "💻 Revit API"
+  - "Programacion"
 ---
 
-Todos tenemos claro que lo mas importante de BIM es la I de información. En Revit tenemos esta información almacenada en los parámetros. Para este pequeño articulo hablaremos como haremos para crear un parámetro compartido y asignarlo a ciertas categorías. 
+Todos tenemos claro que lo mas importante de BIM es la I de información. En Revit tenemos esta información almacenada en los parámetros. Para este pequeño articulo hablaremos como haremos para crear un parámetro compartido y asignarlo a ciertas categorías.
 
-Iniciaremos nuestro proyecto según al publicación de [Mi primer addin con la API de Revit](https://lambda.com.pe/blog/mi-primer-addin) y tendríamos el siguiente código. 
+Iniciaremos nuestro proyecto según al publicación de [Mi primer addin con la API de Revit](https://lambda.com.pe/blog/mi-primer-addin) y tendríamos el siguiente código.
 
-```csharp
+```csharp:command.cs
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
@@ -37,32 +37,31 @@ namespace SetFowrwork
 }
 ```
 
-Hemos elegido [TransactionMode.Manual](https://www.revitapidocs.com/2022/84254a1f-7bba-885a-ce65-e68fc238fddb.htm) ya que haremos cambios en el documento, además  hemos iniciado mostrando un mensaje con [TaskDialog.show](https://www.revitapidocs.com/2022/77990692-a24d-eb40-5872-f3ceb2f76e60.htm) para saber si nuestro aplicativo funciona. Obteniendo como resultado una ventana simple como la que se muestra en la imagen.
+Hemos elegido [TransactionMode.Manual](https://www.revitapidocs.com/2022/84254a1f-7bba-885a-ce65-e68fc238fddb.htm) ya que haremos cambios en el documento, además hemos iniciado mostrando un mensaje con [TaskDialog.show](https://www.revitapidocs.com/2022/77990692-a24d-eb40-5872-f3ceb2f76e60.htm) para saber si nuestro aplicativo funciona. Obteniendo como resultado una ventana simple como la que se muestra en la imagen.
 
 ---
 
-### METODO:  CreateParameter
+#### CreateParameter
 
 Este método será el que usaremos para crear nuestro parámetro y asignarlo a las categorías elegidas. Para que nuestro código sea reutilizable asignaremos los siguientes parámetros.
 
-
-|      NOMBRE    |           TIPO           |                         DESCRIPCION                        |
-| -------------- | ------------------------ | ---------------------------------------------------------- |
-| app            | Application              | Application app = uiDoc.Application.Application;           |
-| doc            | Document                 | Representa el proyecto donde trabajamos.                   |
-| CategorySet    | categorySet              | Lista de categorías donde asignaremos nuestro parámetro.   |
-| parameterName  | string                   | Nombre del parámetro.                                      |
-| parameterType  | ParameterType            | Tipo de parámetro.                                         |
-| parameterGroup | BuiltInParameterGroup    | Grupo donde asignaremos nuestro parámetro.                 |
-| visible        | bool                     | definimos si nuestro parámetro será visible.               |
+| NOMBRE         | TIPO                  | DESCRIPCION                                              |
+| -------------- | --------------------- | -------------------------------------------------------- |
+| app            | Application           | Application app = uiDoc.Application.Application;         |
+| doc            | Document              | Representa el proyecto donde trabajamos.                 |
+| CategorySet    | categorySet           | Lista de categorías donde asignaremos nuestro parámetro. |
+| parameterName  | string                | Nombre del parámetro.                                    |
+| parameterType  | ParameterType         | Tipo de parámetro.                                       |
+| parameterGroup | BuiltInParameterGroup | Grupo donde asignaremos nuestro parámetro.               |
+| visible        | bool                  | definimos si nuestro parámetro será visible.             |
 
 ---
 
-### Crear un archivo de texto para almacenar nuestro SharedParameter
+#### Crear un archivo de texto para almacenar nuestro SharedParameter
 
 crearemos un archivo de texto .txt de manera temporal con el método [Path.GetTempFileName()](https://docs.microsoft.com/en-us/dotnet/api/system.io.path.gettempfilename?view=net-6.0) que posteriormente eliminaremos
 
-```csharp
+```csharp:command.cs
 // Obtenemos la ruta de nuestro archivo actual de SharedParameter
 string sharedParametersFilename = app.SharedParametersFilename;
 
@@ -70,9 +69,11 @@ string str = string.Concat(Path.GetTempFileName(), ".txt"); // Nombre del archiv
 FileStream fileStream = File.Create(str) // Crear el archivo temporal
 ```
 
-### Definimos propiedades de nuestro SharedParameter
+---
 
-```csharp
+#### Definimos propiedades de nuestro SharedParameter
+
+```csharp:command.cs
 app.SharedParametersFilename = str;
 ExternalDefinitionCreationOptions externalDefinitionCreationOption = new ExternalDefinitionCreationOptions(parameterName, parameterType);
 externalDefinitionCreationOption.Visible = visible;
@@ -80,28 +81,33 @@ externalDefinitionCreationOption.UserModifiable = true;
 
 string newGuid = Guid.NewGuid().ToString();
 externalDefinitionCreationOption.GUID = new Guid(newGuid);
-
 ```
 
-### Creamos un grupo dentro de nuestro SharedParameter
+---
 
-```csharp
+#### Creamos un grupo dentro de nuestro SharedParameter
+
+```csharp:command.cs
 ExternalDefinition externalDefinition = app.OpenSharedParameterFile()
                                             .Groups.Create("Lambda I&I")
                                             .Definitions
 											.Create(externalDefinitionCreationOption) as ExternalDefinition;
 ```
 
-### Eliminamos nuestro archivo temporal
+---
 
-```csharp
+#### Eliminamos nuestro archivo temporal
+
+```csharp:command.cs
 app.SharedParametersFilename = sharedParametersFilename;
 File.Delete(str);
 ```
 
-### Seleccionamos las categorías donde estará nuestro parámetro
+---
 
-```csharp
+#### Seleccionamos las categorías donde estará nuestro parámetro
+
+```csharp:command.cs
 Binding binding = app.Create.NewInstanceBinding(categorySet);
 BindingMap bindingMap = new UIApplication(app).ActiveUIDocument.Document.ParameterBindings;
 bindingMap.Insert(externalDefinition, binding, parameterGroup);
@@ -110,9 +116,9 @@ definitionBindingMapIterator.Reset();
 
 while (definitionBindingMapIterator.MoveNext())
 {
-   if ((definitionBindingMapIterator.Key == null 
-				|| !(definitionBindingMapIterator.Key.Name.ToUpper() == parameterName.ToUpper()) 
-				? false 
+   if ((definitionBindingMapIterator.Key == null
+				|| !(definitionBindingMapIterator.Key.Name.ToUpper() == parameterName.ToUpper())
+				? false
 				: ParameterType.Text == definitionBindingMapIterator.Key.ParameterType))
    {
        InternalDefinition key = definitionBindingMapIterator.Key as InternalDefinition;
@@ -128,11 +134,13 @@ while (definitionBindingMapIterator.MoveNext())
 }
 ```
 
-### Ejecutar nuestro método para crear el parámetro
+---
+
+#### Ejecutar nuestro método para crear el parámetro
 
 Dentro de nuestro método **Execute** obtenemos las categorías donde asignaremos nuestro parámetro.
 
-```csharp
+```csharp:command.cs
 CategorySet categorySet = new CategorySet();
 
 categorySet.Insert(Category.GetCategory(doc, BuiltInCategory.OST_StructuralColumns));
@@ -145,18 +153,18 @@ categorySet.Insert(Category.GetCategory(doc, BuiltInCategory.OST_Stairs));
 
 Finalmente generamos una Transaction para hacer las modificaciones en el documento.
 
-```csharp
+```csharp:command.cs
 using (Transaction trans = new Transaction(doc))
 {
     trans.Start("Create Parameter");
     try
     {
-       CreateParameter(app, 
-					   doc, 
-					   categorySet, 
-					   ParameterType.Text, 
-					   BuiltInParameterGroup.PG_SUPPORT, 
-					   "Lambda test", 
+       CreateParameter(app,
+					   doc,
+					   categorySet,
+					   ParameterType.Text,
+					   BuiltInParameterGroup.PG_SUPPORT,
+					   "Lambda test",
 					   true);
        trans.Commit();
     }
@@ -166,15 +174,17 @@ using (Transaction trans = new Transaction(doc))
        trans.RollBack();
        return Result.Failed;
     }
-                
+
 }
 ```
 
-### CODIGO COMPLETO
+---
 
-Para que sea mucho mas fácil entender como funcional el aplicativo te dejo el código completo para su análisis. 
+#### Codigo Completo
 
-```csharp
+Para que sea mucho mas fácil entender como funcional el aplicativo te dejo el código completo para su análisis.
+
+```csharp:command.cs
 using System;
 using System.IO;
 
@@ -212,12 +222,12 @@ namespace SetFowrwork
                     trans.Start("Create Lines");
                 try
                 {
-                    CreateParameter(app, 
-									doc, 
-									categorySet, 
-									ParameterType.Text, 
-									BuiltInParameterGroup.PG_SUPPORT, 
-									"Lambda test", 
+                    CreateParameter(app,
+									doc,
+									categorySet,
+									ParameterType.Text,
+									BuiltInParameterGroup.PG_SUPPORT,
+									"Lambda test",
 									true);
                     trans.Commit();
                 }
@@ -228,12 +238,12 @@ namespace SetFowrwork
                     trans.RollBack();
                     return Result.Failed;
                 }
-                
+
             }
             return Result.Succeeded;
         }
 
-        public void CreateParameter(Application app, 
+        public void CreateParameter(Application app,
                                     Document doc,
                                     CategorySet categorySet,
                                     ParameterType parameterType,
@@ -269,9 +279,9 @@ namespace SetFowrwork
 
             while (definitionBindingMapIterator.MoveNext())
             {
-                if ((definitionBindingMapIterator.Key == null 
-										 || !(definitionBindingMapIterator.Key.Name.ToUpper() == parameterName.ToUpper()) 
-										 ? false 
+                if ((definitionBindingMapIterator.Key == null
+										 || !(definitionBindingMapIterator.Key.Name.ToUpper() == parameterName.ToUpper())
+										 ? false
 										 : ParameterType.Text == definitionBindingMapIterator.Key.ParameterType))
                 {
                     InternalDefinition key = definitionBindingMapIterator.Key as InternalDefinition;
