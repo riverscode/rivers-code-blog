@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Container from "../../components/container";
+import Container from "../../components/Container";
 
 import { getFilesMetadata } from "../../lib/mdx";
 import { SearchIcon } from '@chakra-ui/icons'
@@ -40,7 +40,7 @@ export default function Blog({ posts }) {
           justifyContent="flex-start"
           alignItems="flex-start"
           width="100%"
-          
+
           >
           <Heading letterSpacing="tight" mb={4} as="h1" size="2xl">
             Blog ({posts.length} posts)

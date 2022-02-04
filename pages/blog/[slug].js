@@ -1,7 +1,7 @@
 import { getFiles, getFilesBySlug } from "../../lib/mdx";
 import { MDXRemote } from "next-mdx-remote";
 import {MDXComponents} from "../../components/blog/MDXComponets";
-import Container from '../../components/container'
+import Container from '../../components/Container'
 import HeaderBlog from "../../components/blog/header-blog";
 import ScroollTop from '../../components/ScrollToop'
 import Head from 'next/head'

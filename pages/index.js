@@ -1,4 +1,4 @@
-import Container from "../components/container";
+import Container from "../components/Container";
 import Head from "next/head";
 import { Heading } from "@chakra-ui/react";
 export default function Home() {
