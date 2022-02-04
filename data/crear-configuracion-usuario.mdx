@@ -1,0 +1,28 @@
+---
+title: "Crear Configuraciones de usuario con la API de Revit"
+publishedAt: "2022-01-09"
+summary: "Un tutorial completo de como crear configuraciones de usuario."
+tags:
+  - '💻 Desarrollo'
+  - 'Next.js'
+  - 'Prisma'
+---
+
+Durante la semana se me contrato para un proyecto que consistía en el desarrollo de un aplicativo en Autodesk Revit. El aplicativo era sencillo, al inicio, se tenia que crear un addin que permita cuantificar la cantidad de **[Encofrado](https://es.wikipedia.org/wiki/Encofrado)** de elementos estructurales.
+
+```csharp:hello.cs
+public fmrUserSettings()
+{
+  InitializeComponent();
+  txtParameter.Text = (string)Properties.Settings.Default["Parameter"];
+}
+```
+|      NOMBRE    |           TIPO           |                         DESCRIPCION                        |
+| :---- | :---- | :----- |
+| app            | Application              | Application app = uiDoc.Application.Application;           |
+| doc            | Document                 | Representa el proyecto donde trabajamos.                   |
+| CategorySet    | categorySet              | Lista de categorías donde asignaremos nuestro parámetro.   |
+| parameterName  | string                   | Nombre del parámetro.                                      |
+| parameterType  | ParameterType            | Tipo de parámetro.                                         |
+| parameterGroup | BuiltInParameterGroup    | Grupo donde asignaremos nuestro parámetro.                 |
+| visible        | bool                     | definimos si nuestro parámetro será visible.               |
